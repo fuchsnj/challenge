@@ -1,0 +1,13 @@
+[package]
+name = "challenge"
+version = "0.1.0"
+authors = ["Nathan Fox <fuchsnj@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+rand = "0.6.5"
+gotham = "0.3.0"
+tower-web = "0.3.6"
+tokio = "0.1.17"
+serde = "1.0.89"
+base64 = "0.10.1"
