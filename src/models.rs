@@ -1,11 +1,11 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Extract, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SecretKeySubmission {
-    pub secret_key: String
+    pub secret_key: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Response)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SubmissionResponse {
     pub secret_key_verified: bool,
     pub encrypted_secret: Option<String>,
