@@ -1,8 +1,8 @@
-use rand::{thread_rng, Rng, RngCore};
+use rand::{thread_rng, RngCore};
 
 /// This module implements the Fox Secret Sharing Scheme
 /// Given a secret, it is broken up into N parts. None
-/// of the parts individually contain any information about the secret.
+/// of the parts individually contain any information about the secret (except the length).
 /// The secret can only be obtained when all N parts are recombined
 
 pub fn split_secret(secret: &[u8], num_parts: usize) -> Vec<Vec<u8>> {

@@ -1,15 +1,12 @@
-use std::net::{SocketAddr, TcpStream, Shutdown, IpAddr};
-use std::io;
-use std::collections::HashMap;
-use rand::{thread_rng, Rng};
 use crate::crypto;
-use std::time::{Instant, Duration};
-use std::sync::mpsc::RecvTimeoutError::Timeout;
 use rand::RngCore;
+use std::collections::HashMap;
 use std::io::Write;
+use std::net::{IpAddr, Shutdown, TcpStream};
+use std::time::{Duration, Instant};
 
 const TIME_LIMIT: Duration = Duration::from_secs(1);
-const MIN_PARTS:usize = 3;
+const MIN_PARTS: usize = 3;
 
 pub struct OneTimePad {
     value: Vec<u8>,
@@ -41,7 +38,7 @@ impl Challenge {
     pub fn add_player(&mut self, stream: TcpStream) {
         if let Ok(addr) = stream.peer_addr() {
             if self.players.contains_key(&addr.ip()) {
-                stream.shutdown(Shutdown::Both);
+                let _result = stream.shutdown(Shutdown::Both);
             } else {
                 self.players.insert(addr.ip(), stream);
             }
@@ -53,8 +50,12 @@ impl Challenge {
             let result = Self::verify_submission(submission, &one_time_pad);
             match &result {
                 Ok(_) => println!("Round {} success: Encrypted secret released", self.round),
-                Err(FailureReason::InvalidSecretKey) => println!("Round {} failed: Invalid submission", self.round),
-                Err(FailureReason::LateSubmission) => println!("Round {} failed: late submission received", self.round)
+                Err(FailureReason::InvalidSecretKey) => {
+                    println!("Round {} failed: Invalid submission", self.round)
+                }
+                Err(FailureReason::LateSubmission) => {
+                    println!("Round {} failed: late submission received", self.round)
+                }
             }
             result.map(|_| {
                 let mut secret_bytes: Vec<u8> = self.secret.as_bytes().to_owned();
@@ -66,8 +67,11 @@ impl Challenge {
         }
     }
 
-    fn verify_submission(submission: &[u8], one_time_pad: &OneTimePad) -> Result<(), FailureReason> {
-        let response_time = (Instant::now() - one_time_pad.created);
+    fn verify_submission(
+        submission: &[u8],
+        one_time_pad: &OneTimePad,
+    ) -> Result<(), FailureReason> {
+        let response_time = Instant::now() - one_time_pad.created;
         if response_time < TIME_LIMIT {
             if one_time_pad.value == submission {
                 Ok(())
@@ -92,29 +96,20 @@ impl Challenge {
         let num_players = self.players.len();
         let num_parts = MIN_PARTS.max(num_players);
         let parts = crypto::split_secret(&random_bytes, num_parts);
-        println!("Sending {}/{} parts to {} players", num_players, num_parts, num_players);
-        parts.into_iter()
+        println!(
+            "Sending {}/{} parts to {} players",
+            num_players, num_parts, num_players
+        );
+        parts
+            .into_iter()
             .zip(self.players.drain())
-            .for_each(|(part, (addr, mut stream))|{
-                let _ignored_result = stream.write_all(&part);
+            .for_each(|(part, (_addr, mut stream))| {
+                let _result = stream.write_all(&part);
             });
 
         self.one_time_pad = Some(OneTimePad {
             value: random_bytes,
             created: round_start,
         });
-    }
-}
-
-#[cfg(test)]
-mod test{
-    use super::*;
-    const SECRET:&'static str = "secret";
-
-    #[test]
-    fn test(){
-        let challenge = Challenge::new(SECRET);
-
-
     }
 }

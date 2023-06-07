@@ -9,8 +9,7 @@ mod tcp_server;
 
 use crate::challenge::Challenge;
 use std::io;
-use std::io::{Read, Write};
-use std::net::{TcpListener, TcpStream};
+use std::io::Write;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
