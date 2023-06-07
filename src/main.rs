@@ -1,6 +1,3 @@
-// #[macro_use]
-// extern crate tower_web;
-
 mod api_server;
 mod challenge;
 mod crypto;

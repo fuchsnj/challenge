@@ -6,7 +6,7 @@ use std::net::{IpAddr, Shutdown, TcpStream};
 use std::time::{Duration, Instant};
 
 const TIME_LIMIT: Duration = Duration::from_secs(1);
-const MIN_PARTS: usize = 3;
+const MIN_PARTS: usize = 6;
 
 pub struct OneTimePad {
     value: Vec<u8>,
